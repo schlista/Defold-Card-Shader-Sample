@@ -1,6 +1,6 @@
 uniform lowp sampler2D texture_sampler;
 uniform lowp vec4 tint;
-uniform mediump float time; // Pass a time-based variable to the shader
+uniform mediump vec4 timex; // Pass a time-based variable to the shader
 
 varying mediump vec2 var_texcoord0;
 
@@ -14,11 +14,16 @@ lowp vec4 diamond(mediump vec2 uv) {
 }
 
 void main() {
+    // Add time-based subtle back-and-forth movement to the texture coordinates
+    mediump float displacement = sin(timex.x * 0.5) * 0.015; // Very subtle and slow displacement
+
+    mediump vec2 movingUV = var_texcoord0.xy + vec2(displacement, displacement);
+
     // Get the original sprite color
     lowp vec4 spriteColor = texture2D(texture_sampler, var_texcoord0.xy);
 
-    // Generate the diamond reflection color
-    lowp vec4 diamondColor = diamond(var_texcoord0.xy);
+    // Generate the diamond reflection color with moving coordinates
+    lowp vec4 diamondColor = diamond(movingUV);
 
     // Blend the diamond reflection color with the sprite color using alpha for semi-transparency
     mediump float alpha = 0.95; // Adjust alpha for desired transparency

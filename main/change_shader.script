@@ -7,7 +7,7 @@ function init(self)
 	go.property("material3", resource.material("/assets/materials/negative.material"))
 	
 	self.rainbow = hash("/assets/materials/rainbow.materialc")
-	self.holographic = hash("/assets/materials/diamonds.materialc")
+	self.diamond = hash("/assets/materials/diamonds.materialc")
 	self.negative = hash("/assets/materials/negative.materialc")
 	self.sprite = hash("/builtins/materials/sprite.materialc")	
 	self.set_time = false
@@ -19,8 +19,8 @@ function on_message(self, message_id, message, sender)
 			self.set_time = true
 			go.set(message.sprite_url, "material", self.rainbow)
 		elseif message.shader == 2 then
-			self.set_time = false
-			go.set(message.sprite_url, "material", self.holographic)
+			self.set_time = true
+			go.set(message.sprite_url, "material", self.diamond)
 		elseif message.shader == 3 then
 			self.set_time = false
 			go.set(message.sprite_url, "material", self.negative)
