@@ -1,26 +1,43 @@
+local timex = 0
+
 function init(self)
 	-- Store references to the materials
 	go.property("material1", resource.material("/assets/materials/rainbow.material"))
-	go.property("material2", resource.material("/assets/materials/holographic.material"))
+	go.property("material2", resource.material("/assets/materials/diamonds.material"))
 	go.property("material3", resource.material("/assets/materials/negative.material"))
 	
 	self.rainbow = hash("/assets/materials/rainbow.materialc")
-	self.holographic = hash("/assets/materials/holographic.materialc")
+	self.holographic = hash("/assets/materials/diamonds.materialc")
 	self.negative = hash("/assets/materials/negative.materialc")
-	self.sprite = hash("/builtins/materials/sprite.materialc")
+	self.sprite = hash("/builtins/materials/sprite.materialc")	
+	self.set_time = false
 end
 
 function on_message(self, message_id, message, sender)
 	if message_id == hash("change_shader") then
 		if message.shader == 1 then
+			self.set_time = true
 			go.set(message.sprite_url, "material", self.rainbow)
 		elseif message.shader == 2 then
+			self.set_time = false
 			go.set(message.sprite_url, "material", self.holographic)
 		elseif message.shader == 3 then
+			self.set_time = false
 			go.set(message.sprite_url, "material", self.negative)
 		elseif message.shader == 0 then
+			self.set_time = false
 			go.set(message.sprite_url, "material", self.sprite)
 		end
 		-- ... handle more shaders as needed
+	end
+end
+
+function update(self, dt)
+	-- Increment the time variable
+	timex = timex + dt
+	
+	-- Pass the time value to the shader
+	if self.set_time == true then
+		go.set("#sprite", "timex.x", timex)
 	end
 end

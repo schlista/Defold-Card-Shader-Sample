@@ -17,6 +17,9 @@ function init(self)
 	self.dragging = false
 	self.shader = 0
 	self.time = 0  -- Add time variable for the wiggle effect
+
+	-- Initialize time
+	self.time = 0
 end
 
 function update(self, dt)

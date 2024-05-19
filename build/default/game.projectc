@@ -153,6 +153,8 @@ track_cpu = 0
 
 [project]
 compress_archive = 1
+developer = Mike Swisher
+publisher = Mike Swisher
 title = balatro effects
 version = 1.0
 write_log = 0
