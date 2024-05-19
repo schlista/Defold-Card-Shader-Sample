@@ -1,0 +1,88 @@
+-- Utility function to convert screen coordinates to world coordinates
+local function screen_to_world(x, y)
+	-- Convert screen coordinates to world coordinates
+	local window_width, window_height = window.get_size()
+	local view_width, view_height = 1920, 1080
+
+	local normalized_x = (x / window_width) * view_width
+	local normalized_y = (y / window_height) * view_height
+
+	return normalized_x, normalized_y
+end
+
+function init(self)
+	msg.post(".", "acquire_input_focus")
+	self.card_sprite = msg.url(nil, nil, "sprite")
+	self.card_script = msg.url(nil, nil, "change_shader")
+	self.dragging = false
+	self.shader = 0
+	self.time = 0  -- Add time variable for the wiggle effect
+end
+
+function update(self, dt)
+	if self.dragging then
+		-- Increase the time variable
+		self.time = self.time + dt
+
+		-- Convert screen coordinates to world coordinates
+		local world_x, world_y = screen_to_world(self.current_action.screen_x or self.current_action.x, self.current_action.screen_y or self.current_action.y)
+
+		-- Calculate the new position based on the drag
+		local delta = vmath.vector3(world_x, world_y, 0) - self.drag_start_position
+		local new_position = self.card_start_position + delta
+
+		-- Add shake effect
+		local shake_amplitude = 10 -- Adjust the amplitude of the shake
+		local shake_frequency = 10 -- Adjust the frequency of the shake
+		new_position.x = new_position.x + math.sin(self.time * shake_frequency) * shake_amplitude
+
+		go.set_position(new_position)
+		print("Dragging: new position with shake", new_position)
+	end
+end
+
+function on_input(self, action_id, action)
+	if action_id == hash("right_click") and action.pressed then
+		self.shader = self.shader + 1
+		if self.shader == 4 then
+			self.shader = 0
+		end
+		msg.post(self.card_script, "change_shader", { shader = self.shader, sprite_url = self.card_sprite })
+	end
+
+	if action_id == hash("touch") then
+		if action.pressed then
+			-- Get the current position of the card sprite
+			local card_pos = go.get_position(self.card_sprite)
+			local card_width = 239
+			local card_height = 367
+
+			-- Calculate the bounds of the card sprite
+			local left = card_pos.x - card_width / 2
+			local right = card_pos.x + card_width / 2
+			local top = card_pos.y + card_height / 2
+			local bottom = card_pos.y - card_height / 2
+
+			-- Convert screen coordinates to world coordinates
+			local world_x, world_y = screen_to_world(action.x, action.y)
+
+			-- Check if the touch is within the bounds of the card sprite
+			if world_x > left and world_x < right and world_y > bottom and world_y < top then
+				-- Start dragging the card
+				self.dragging = true
+				self.drag_start_position = vmath.vector3(world_x, world_y, 0)
+				self.card_start_position = card_pos
+				self.time = 0  -- Reset time for the shake effect
+			end
+		elseif action.released then
+			-- Stop dragging the card
+			self.dragging = false
+			print("Stopped dragging")
+		end
+	end
+
+	if self.dragging then
+		-- Store the current action for use in update
+		self.current_action = action
+	end
+end
